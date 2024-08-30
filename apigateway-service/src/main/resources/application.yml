@@ -6,7 +6,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://service-discovery:8761/eureka
 
 spring:
   config:
@@ -38,6 +38,8 @@ spring:
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
+            # 아래에서 user-service 도메인을 제거하는 작업을 했음
+            # 의미없는 depth 는 생성하지 않는게 좋다..!
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
         - id: user-service
           uri: lb://USER-SERVICE
@@ -82,6 +84,7 @@ spring:
             - Path=/order-service/**
         - id: first-service
           uri: lb://MY-FIRST-SERVICE
+          #uri: http://localhost:8081
           predicates:
             - Path=/first-service/**
           filters:
@@ -90,6 +93,8 @@ spring:
             - CustomFilter
         - id: second-service
           uri: lb://MY-SECOND-SERVICE
+          #uri: http://localhost:8082
+
           predicates:
             - Path=/second-service/**
           filters:
@@ -103,6 +108,7 @@ spring:
                 postLogger: true
 
 #token:
+#  expiration_time: 86400000
 #  secret: user_token
 
 management:

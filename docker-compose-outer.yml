@@ -1,0 +1,112 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "5671:5671"
+      - "15671:15671"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      ecommerce-network:
+
+  mariadb-server:
+    image: mariadb:latest
+    container_name: mariadb-server
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: test1357
+      MARIADB_DATABASE: mydb
+    networks:
+      ecommerce-network:
+
+  broker:
+    image: apache/kafka:latest
+    ports:
+      - "9092:9092"
+    container_name: broker
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://broker:9092,CONTROLLER://broker:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    networks:
+      ecommerce-network:
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    container_name: zipkin
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_DB=zipkin
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      - MYSQL_HOST=zipkin-db
+    networks:
+      ecommerce-network:
+
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: mysql
+    volumes:
+#      - ./zipkin/initdb.d:/docker-entrypoint-initdb.d
+      - C:\\lgCns\\work\\git\\toy-msa\\zipkin\\initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: zipkin
+      MYSQL_USER: zipkin
+      MYSQL_PASSWORD: zipkin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    networks:
+      ecommerce-network:
+
+  config-service:
+    image: minnnseokk/config-service:lgcns_1
+    container_name: config-service
+    environment:
+      encrypt.key-store.location: file:///apiEncryptionKey.jks
+      MYSQL_DATABASE: zipkin
+    ports:
+      - "8888:8888"
+    networks:
+      ecommerce-network:
+
+  service-discovery:
+    image: minnnseokk/service-discovery:lgcns_1
+    container_name: service-discovery
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-service
+    networks:
+      ecommerce-network:
+
+  apigateway-service:
+    image: minnnseokk/apigateway-service:lgcns_1
+    container_name: apigateway-service
+    ports:
+      - "8000:8000"
+    environment:
+      spring.rabbitmq.host: rabbitmq
+    depends_on:
+        - service-discovery
+    networks:
+      ecommerce-network:
+
+networks:
+  ecommerce-network:
+    external: true

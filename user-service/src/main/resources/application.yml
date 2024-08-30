@@ -13,14 +13,14 @@ spring:
     base-url: http://localhost:9411
     enabled: true
 
-#  rabbitmq:
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest
-#    password: guest
-#    listener:
-#      simple:
-#        prefetch: 5
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        prefetch: 5
   h2:
     console:
       enabled: true
@@ -38,7 +38,7 @@ spring:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  #    prefer-ip-address: true
+    prefer-ip-address: true
   #    ip-address: ${server.address}
   client:
     service-url:
@@ -70,11 +70,15 @@ management:
     web:
       exposure:
         include: "*"
+order-service:
+  url: http://ORDER-SERVICE/order-service/%s/orders
+  exception:
+    order-is-empty: User's order is empty.
 
 #gateway:
 #  ip: 10.204.136.204
 
 #token:
 #  expiration_time: 86400000
-#  secret: user_token_test
+#  secret: user_token
 

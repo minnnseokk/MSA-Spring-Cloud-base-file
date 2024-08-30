@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
@@ -54,24 +55,33 @@ public class WebSecurityNew {
 //        http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((authz) -> authz
-                        .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/users", "POST")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/welcome")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/health-check")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/users", "POST")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/users", "GET")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/users/**", "GET")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/welcome")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/health-check")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 //                        .requestMatchers("/**").access(this::hasIpAddress)
-                        .requestMatchers("/**").access(
-                                new WebExpressionAuthorizationManager("hasIpAddress('localhost') or hasIpAddress('127.0.0.1') or hasIpAddress('172.30.96.94')")) // host pc ip address
-                        .anyRequest().authenticated()
+                                .requestMatchers("/**").access(
+                                        new WebExpressionAuthorizationManager(
+                                                "hasIpAddress('127.0.0.1') or hasIpAddress('::1') or " +
+                                                        "hasIpAddress('apigateway-service') or hasIpAddress('apigateway-service/16') or hasIpAddress('172.19.0.5') or hasIpAddress('172.23.112.1') or hasIpAddress('172.19.0.5/32')")) // host pc ip address
+                                                        // api 게이트웨이가 도커 컨테이너를 통해 연결되어있고
+                                                        // 해당된 Ip 주소를 넣어줘야한다.
+                                .anyRequest().authenticated()
                 )
                 .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilter(getAuthenticationFilter(authenticationManager));
+
+        http.addFilterBefore(new IpAddressLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+
         http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
 
         return http.build();

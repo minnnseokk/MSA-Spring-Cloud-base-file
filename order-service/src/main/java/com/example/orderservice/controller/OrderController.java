@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/order-service")
@@ -47,6 +44,11 @@ public class OrderController {
                 env.getProperty("server.port"));
     }
 
+    @GetMapping("/orders")
+    public List<HashMap<String, Object>> orders() {
+        return orderService.getOrderSummary();
+    }
+
     @PostMapping("/{userId}/orders")
     public ResponseEntity<ResponseOrder> createOrder(@PathVariable("userId") String userId,
                                                      @RequestBody RequestOrder orderDetails) {
@@ -59,13 +61,16 @@ public class OrderController {
         /* jpa */
         OrderDto createdOrder = orderService.createOrder(orderDto);
         ResponseOrder responseOrder = mapper.map(createdOrder, ResponseOrder.class);
+//        ResponseOrder responseOrder = mapper.map(orderDto, ResponseOrder.class);
 
         /* kafka */
         orderDto.setOrderId(UUID.randomUUID().toString());
         orderDto.setTotalPrice(orderDetails.getQty() * orderDetails.getUnitPrice());
 
-        /* send this order to the kafka */
+        /* send this order to the kafka 카탈로그 토픽 생성 */
         kafkaProducer.send("example-catalog-topic", orderDto);
+        /* send this order 로 example-order-topic 오더 토픽을 생성 */
+//        orderProducer.send("example-order-topic", orderDto);
 
         log.info("After added orders data");
         return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);

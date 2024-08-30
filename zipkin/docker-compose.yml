@@ -10,6 +10,8 @@ services:
       - MYSQL_USER=zipkin
       - MYSQL_PASS=zipkin
       - MYSQL_HOST=mysql
+    networks:
+      ecommerce-network:
   mysql:
     image: mysql:5.7
     platform: linux/amd64
@@ -21,4 +23,9 @@ services:
       MYSQL_PASSWORD: zipkin
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "3308:3306"
+    networks:
+      ecommerce-network:
+networks:
+  ecommerce-network:
+    external: true
