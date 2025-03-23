@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/order-service")
@@ -40,11 +37,16 @@ public class OrderController {
         this.orderProducer = orderProducer;
     }
 
-    @GetMapping("/health_check")
+    @GetMapping("/health-check")
     public String status() {
         return String.format("It's Working in Order Service on LOCAL PORT %s (SERVER PORT %s)",
                 env.getProperty("local.server.port"),
                 env.getProperty("server.port"));
+    }
+
+    @GetMapping("/orders")
+    public List<HashMap<String, Object>> orders() {
+        return orderService.getOrderSummary();
     }
 
     @PostMapping("/{userId}/orders")
@@ -59,16 +61,16 @@ public class OrderController {
         /* jpa */
         OrderDto createdOrder = orderService.createOrder(orderDto);
         ResponseOrder responseOrder = mapper.map(createdOrder, ResponseOrder.class);
+//        ResponseOrder responseOrder = mapper.map(orderDto, ResponseOrder.class);
 
         /* kafka */
         orderDto.setOrderId(UUID.randomUUID().toString());
         orderDto.setTotalPrice(orderDetails.getQty() * orderDetails.getUnitPrice());
 
-        /* send this order to the kafka */
-//        kafkaProducer.send("example-catalog-topic", orderDto);
-//        orderProducer.send("orders", orderDto);
-
-//        ResponseOrder responseOrder = mapper.map(orderDto, ResponseOrder.class);
+        /* send this order to the kafka 카탈로그 토픽 생성 */
+        kafkaProducer.send("example-catalog-topic", orderDto);
+        /* send this order 로 example-order-topic 오더 토픽을 생성 */
+//        orderProducer.send("example-order-topic", orderDto);
 
         log.info("After added orders data");
         return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);
@@ -84,16 +86,16 @@ public class OrderController {
             result.add(new ModelMapper().map(v, ResponseOrder.class));
         });
 
-        try {
-            Random rnd = new Random();
-            int value = rnd.nextInt(3);
-            if (value % 2 == 0) {
-                Thread.sleep(10000);
-                throw new Exception("장애 발생");
-            }
-        } catch(InterruptedException ex) {
-            log.warn(ex.getMessage());
-        }
+//        try {
+//            Random rnd = new Random();
+//            int value = rnd.nextInt(5);
+//            if (value % 2 == 0) {
+//                Thread.sleep(10000);
+//                throw new Exception("장애 발생");
+//            }
+//        } catch(InterruptedException ex) {
+//            log.warn(ex.getMessage());
+//        }
 
         log.info("Add retrieved orders data");
 

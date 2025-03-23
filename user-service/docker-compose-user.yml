@@ -1,0 +1,30 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+  user-service:
+    image: user-service:1.0
+#    restart: always
+#    ports:
+#      - "3307:3306"
+    # 0번 랜덤포트는 port 설정 의미없음
+    environment:
+
+      spring.cloud.config.uri: http://config-service:8888
+      spring.rabbitmq.host: rabbitmq
+      spring.zipkin.base-url: http://zipkin-zipkin-1:9411
+      # 내부에서 쓰는것은 3306번 포트임으로 외부에서 들어오는
+      # 디비 포트 이런거 신경쓰지 마셈
+#      spring.datasource.url: jdbc:mariadb://mariadb-server:3306/mydb
+      eureka.client.service-url.defaultZone: http://service-discovery:8761/eureka/
+      management.zipkin.tracing.endpoint: http://zipkin-zipkin-1:9411/api/v2/spans
+#      MARIADB_ROOT_PASSWORD: test1357
+#      MARIADB_USER: example-user
+#      MARIADB_PASSWORD: test1357
+#      MARIADB_DATABASE: mydb
+    networks:
+      ecommerce-network:
+
+networks:
+  ecommerce-network:
+    external: true

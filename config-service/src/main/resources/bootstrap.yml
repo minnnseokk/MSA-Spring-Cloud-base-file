@@ -1,8 +1,10 @@
 encrypt:
-    #  key: abcdefghijklmnopqrstuvwxyz0123456789
+#      key: abcdefghijklmnopqrstuvwxyz0123456789
     key-store:
-#        location: file://${user.home}/Desktop/git/toy-msa/config-service/apiEncryptionKey.jks
-        location: file:/apiEncryptionKey.jks
-        #    location: file:///apiEncryptionKey.jks
+        # 도커 컨테이너에 포함된 jks 파일의 경로
+        # file:///을 붙여야함
+        # jar에 포함된 위치한 jsk 파일경로
+        location: file:///apiEncryptionKey.jks
+#        location: /apiEncryptionKey.jks
         password: test1234
         alias: apiEncryptionKey

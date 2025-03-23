@@ -2,26 +2,28 @@ server:
   port: 8888
 
 spring:
+  #  profiles:
+  #    active: native
   application:
     name: config-service
-#  profiles:
-#    active: native
   cloud:
     config:
       server:
         native:
-          search-locations: file:///Users/dowonlee_1/Desktop/git/toy-msa-etc/git-local-repo
+        # 윈도우 config 로컬 파일의 경로
+        #          search-locations: file:///C://LgCns//work//git-local-repo
         git: #default
           uri: https://github.com/joneconsulting/spring-cloud-config
+          #          uri: file:///C://LgCns//work//git-local-repo
           default-label: master
-#              basedir: /Users/dowonlee/Desktop/Work/tmp/config-repo
-#              username: [username]
-#              password: [password]
-#  rabbitmq:
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest
-#    password: guest
+        #          username: <github-id>
+        #          password: <gihub-accessToken>
+        bootstrap: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
 
 management:
   endpoints:

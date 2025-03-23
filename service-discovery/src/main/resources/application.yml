@@ -13,7 +13,9 @@ eureka:
 ---
 
 spring:
-  profiles: eureka1
+  config:
+    activate:
+      on-profile: eureka2
 
 server:
   port: 8762
@@ -21,14 +23,16 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://kubernetes.docker.internal:8763/eureka/
+      defaultZone: http://DOWONui-MacBookPro.local:8763/eureka/
   instance:
     hostname: localhost
 
 ---
 
 spring:
-  profiles: eureka2
+  config:
+    activate:
+      on-profile: eureka3
 
 server:
   port: 8763
@@ -38,4 +42,4 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8762/eureka/
   instance:
-    hostname: kubernetes.docker.internal
+    hostname: DOWONui-MacBookPro.local

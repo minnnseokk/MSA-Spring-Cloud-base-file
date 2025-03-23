@@ -1,0 +1,31 @@
+version: '3'
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_DB=zipkin
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      - MYSQL_HOST=mysql
+    networks:
+      ecommerce-network:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: zipkin
+      MYSQL_USER: zipkin
+      MYSQL_PASSWORD: zipkin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    networks:
+      ecommerce-network:
+networks:
+  ecommerce-network:
+    external: true

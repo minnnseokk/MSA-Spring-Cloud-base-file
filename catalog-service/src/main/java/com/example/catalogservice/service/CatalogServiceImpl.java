@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Data
 @Slf4j
 @Service
@@ -22,4 +24,7 @@ public class CatalogServiceImpl implements CatalogService{
     public Iterable<CatalogEntity> getAllCatalogs() {
         return catalogRepository.findAll();
     }
+
+    @Override
+    public CatalogEntity getCatalogs(String productId) { return catalogRepository.findByProductId(productId);}
 }

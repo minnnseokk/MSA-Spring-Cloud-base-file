@@ -1,0 +1,44 @@
+services:
+  user-service:
+    image: minnnseokk/user-service:lgcns_1
+    #    ports:
+    #      - "3307:3306"
+    container_name: user-service
+    environment:
+      spring.cloud.config.uri: http://config-service:8888
+      spring.rabbitmq.host: rabbitmq
+      spring.zipkin.base-url: http://zipkin-zipkin-1:9411
+      eureka.client.service-url.defaultZone: http://service-discovery:8761/eureka/
+      management.zipkin.tracing.endpoint: http://zipkin:9411/api/v2/spans
+#    depends_on:
+#      - config-service
+    networks:
+      ecommerce-network:
+
+  order-service:
+    image: minnnseokk/order-service:lgcns_1
+    container_name: order-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.zipkin.base-url: http://zipkin:9411
+      spring.datasource.url: jdbc:mariadb://mariadb-server:3306/mydb
+      eureka.client.service-url.defaultZone: http://service-discovery:8761/eureka/
+      management.zipkin.tracing.endpoint: http://zipkin:9411/api/v2/spans
+    networks:
+      ecommerce-network:
+
+  catalog-service:
+    image: minnnseokk/catalog-service:lgcns_1
+    container_name: catalog-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.zipkin.base-url: http://zipkin:9411
+      spring.datasource.url: jdbc:mariadb://mariadb-server:3306/mydb
+      eureka.client.service-url.defaultZone: http://service-discovery:8761/eureka/
+      management.zipkin.tracing.endpoint: http://zipkin:9411/api/v2/spans
+    networks:
+      ecommerce-network:
+
+networks:
+  ecommerce-network:
+    external: true

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.6</version>
+        <version>3.2.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
@@ -20,12 +20,13 @@
         <module>order-service</module>
         <module>second-service</module>
         <module>service-discovery</module>
+        <module>base-service</module>
         <module>user-service</module>
     </modules>
     <name>msa-spring-cloud</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>21</java.version>
         <spring-cloud.version>2020.0.3</spring-cloud.version>
     </properties>
     <dependencies>

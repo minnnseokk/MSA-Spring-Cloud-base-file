@@ -2,34 +2,34 @@ server:
   port: 60000
 
 spring:
-  config:
-    import: optional:configserver:http://127.0.0.1:8888/
+#  config:
+#    import: optional:configserver:http://127.0.0.1:8888/
   cloud:
     config:
-#      name: ecommerce
       name: user-service
   application:
     name: user-service
-#  zipkin:
-#    base-url: http://13.124.192.188:9411
-#    enabled: true
-#  sleuth:
-#    sampler:
-#      probability: 1.0
-#  rabbitmq:
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest_user
-#    password: guest_user
-#    listener:
-#      simple:
-#        prefetch: 5
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: true
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        prefetch: 5
   h2:
     console:
       enabled: true
       settings:
         web-allow-others: true
       path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb
@@ -38,7 +38,7 @@ spring:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  #    prefer-ip-address: true
+    prefer-ip-address: true
   #    ip-address: ${server.address}
   client:
     service-url:
@@ -52,17 +52,33 @@ greeting:
 logging:
   level:
     com.example.userservice.client: DEBUG
+  pattern:
+    correlation: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      consume: B3
+      produce: B3
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, busrefresh, info, metrics, prometheus
+        include: "*"
+order-service:
+  url: http://ORDER-SERVICE/order-service/%s/orders
+  exception:
+    order-is-empty: User's order is empty.
 
 #gateway:
 #  ip: 10.204.136.204
 
-token:
-  expiration_time: 86400000
-  secret: user_token
+#token:
+#  expiration_time: 86400000
+#  secret: user_token
 

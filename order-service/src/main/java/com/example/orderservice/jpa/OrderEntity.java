@@ -3,7 +3,7 @@ package com.example.orderservice.jpa;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,11 +24,13 @@ public class OrderEntity implements Serializable {
     private Integer unitPrice;
     @Column(nullable = false)
     private Integer totalPrice;
-
     @Column(nullable = false)
     private String userId;
     @Column(nullable = false, unique = true)
     private String orderId;
+
+    @Column(nullable = false)
+    private String orderIp;
 
     @Column(nullable = false, updatable = false, insertable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
