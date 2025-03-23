@@ -13,7 +13,9 @@ spring:
         # 윈도우 config 로컬 파일의 경로
         #          search-locations: file:///C://LgCns//work//git-local-repo
         git: #default
-          uri: https://github.com/joneconsulting/spring-cloud-config
+          # uri: https://github.com/joneconsulting/spring-cloud-config
+          # 나의 깃 레포지토리 config 경로
+          uri: https://github.com/minnnseokk/spring-cloud-config
           #          uri: file:///C://LgCns//work//git-local-repo
           default-label: master
         #          username: <github-id>
